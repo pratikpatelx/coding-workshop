@@ -1,10 +1,15 @@
-import React from 'react';
+import React from "react";
 
 const Notes = ({ notes, setNotes, handleSubmit }) => {
   return (
     <div>
       <div className="mb-4">
-        <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Design Notes</label>
+        <label
+          htmlFor="notes"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Design Notes
+        </label>
         <textarea
           id="notes"
           value={notes}

@@ -9,7 +9,7 @@ const FormComponent = ({ activeTab }) => {
   const [formData, setFormData] = useState({
     jobName: '',
     customerName: '',
-    materials: [], // Initialize materials as an empty array
+    materials: [],
     printType: '',
     printCustomerName: false,
     customText: '',
@@ -52,12 +52,6 @@ const FormComponent = ({ activeTab }) => {
       });
   }, []);
 
-  const handleChange = (name, value) => {
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
-  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -144,8 +138,10 @@ const FormComponent = ({ activeTab }) => {
       )}
       {activeTab === 'material' && (
         <Material
-          materials={materialList} // Pass materials as a prop
-          onMaterialChange={handleMaterialChange} // Pass the handler for material selection
+          // Pass materials as a prop
+          materials={materialList} 
+          // Pass the handler for material selection
+          onMaterialChange={handleMaterialChange} 
         />
       )}
       {activeTab === 'printing' && (
@@ -156,7 +152,6 @@ const FormComponent = ({ activeTab }) => {
           setPrintCustomerName={(value) => handlePrintingChange('printCustomerName', value)}
           customText={formData.customText}
           setCustomText={(value) => handlePrintingChange('customText', value)}
-          // Other relevant props and functions
         />
       )}
       {activeTab === 'notes' && (
