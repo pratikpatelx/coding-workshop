@@ -8,7 +8,11 @@ const Material = ({ selectedMaterials, setSelectedMaterials }) => {
   ];
 
   const handleCheckboxChange = (materialId) => {
-    // ...existing logic
+    if (selectedMaterials.includes(materialId)) {
+      setSelectedMaterials(selectedMaterials.filter(id => id !== materialId));
+    } else {
+      setSelectedMaterials([...selectedMaterials, materialId]);
+    }
   };
 
   return (
@@ -18,7 +22,6 @@ const Material = ({ selectedMaterials, setSelectedMaterials }) => {
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material ID</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material Name</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
