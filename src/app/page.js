@@ -8,15 +8,7 @@ import Printing from './components/Printing';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('jobInfo');
-  const [jobName, setJobName] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [selectedMaterials, setSelectedMaterials] = useState([]);
-  const [printType, setPrintType] = useState('');
-  const [printCustomerName, setPrintCustomerName] = useState(false);
-  const [customText, setCustomText] = useState('');
-  const [enableCustomText, setEnableCustomText] = useState(false);
-  const [designNotes, setDesignNotes] = useState('');
-
+  
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-blue-500 text-white p-4 text-center">

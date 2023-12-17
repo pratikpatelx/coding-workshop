@@ -1,49 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const Material = ({ selectedMaterials, setSelectedMaterials }) => {
-  const [materials, setMaterials] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+const Material = ({ materials }) => {
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
 
-  useEffect(() => {
-    const fetchMaterials = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/materials');
-        if (!response.ok) throw new Error('Failed to fetch materials');
-        const data = await response.json();
-        setMaterials(data.materials);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMaterials();
-  }, []);
-
-  const handleCheckboxChange = (materialId) => {
-    setSelectedMaterials((prevSelectedMaterials) => {
-      if (prevSelectedMaterials.includes(materialId)) {
-        return prevSelectedMaterials.filter((id) => id !== materialId);
-      } else {
-        return [...prevSelectedMaterials, materialId];
-      }
-    });
+  const handleMaterialCheck = (id) => {
+    setSelectedMaterials(prevSelected =>
+      prevSelected.includes(id) ? prevSelected.filter(mid => mid !== id) : [...prevSelected, id]
+    );
   };
 
-  if (isLoading) return <p>Loading materials...</p>;
-  if (error) return <p>Error loading materials: {error}</p>;
-
   return (
-    <div className="mt-4">
+    <div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material ID</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material Name</th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -52,10 +25,10 @@ const Material = ({ selectedMaterials, setSelectedMaterials }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{material.id}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{material.name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={selectedMaterials.includes(material.id)}
-                  onChange={() => handleCheckboxChange(material.id)}
+                  onChange={() => handleMaterialCheck(material.id)}
                   className="rounded"
                 />
               </td>

@@ -1,96 +1,90 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import JobInfo from './JobInfo';
 import Material from './Material';
 import Printing from './Printing';
 import Notes from './Notes';
 
-const FormComponent = ({activeTab}) => {
-  // State for each part of the form
-  const [jobName, setJobName] = useState('');
-  const [customerName, setCustomerName] = useState('');
-  const [selectedMaterials, setSelectedMaterials] = useState([]);
-  const [printType, setPrintType] = useState('');
-  const [printCustomerName, setPrintCustomerName] = useState(false);
-  const [customText, setCustomText] = useState('');
-  const [enableCustomText, setEnableCustomText] = useState(false);
-  const [designNotes, setDesignNotes] = useState('');
+const FormComponent = ({ activeTab }) => {
+  const [formData, setFormData] = useState({
+    jobName: '',
+    customerName: '',
+    materials: [],
+    printType: '',
+    printCustomerName: false,
+    customText: '',
+    notes: ''
+  });
+  const [customers, setCustomers] = useState([]);
+  const [materialList, setMaterialList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Handle form submission
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const formData = {
-      jobInfo: { jobName, customerName },
-      selectedMaterials,
-      printingOptions: {
-        printType,
-        printCustomerName,
-        customText: enableCustomText ? customText : '',
-      },
-      designNotes
-    };
-
-    try {
-      const response = await fetch('/api/submitForm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+  useEffect(() => {
+    setIsLoading(true);
+    fetch('/api/data')
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch form data');
+        return response.json();
+      })
+      .then(data => {
+        setFormData(data.formData[0]); // Set initial form data
+        setCustomers([...new Set(data.formData.map(entry => entry.customerName))]);
+        setMaterialList(data.formData.map(entry => ({ id: entry.materialId, name: entry.materialName })));
+      })
+      .catch(error => {
+        setError(error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
+  }, []);
 
-      if (response.ok) {
-        console.log('Form submitted successfully');
-        // Additional actions on successful submission (e.g., clear form, show success message)
-      } else {
-        console.error('Error submitting form');
-        // Handle error response
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      // Handle exception
-    }
+  const handleChange = (name, value) => {
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
+    }));
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="mt-4">
       {activeTab === 'jobInfo' && (
-        <JobInfo 
-          jobName={jobName} 
-          setJobName={setJobName} 
-          customerName={customerName} 
-          setCustomerName={setCustomerName} 
+        <JobInfo
+          jobName={formData.jobName}
+          customerName={formData.customerName}
+          setJobName={(value) => handleChange('jobName', value)}
+          setCustomerName={(value) => handleChange('customerName', value)}
+          customers={customers}
         />
       )}
       {activeTab === 'material' && (
-        <Material 
-          selectedMaterials={selectedMaterials} 
-          setSelectedMaterials={setSelectedMaterials} 
+        <Material
+          materials={materialList}
+          // Include functions to handle material selection
         />
       )}
       {activeTab === 'printing' && (
-        <Printing 
-          printType={printType} 
-          setPrintType={setPrintType} 
-          printCustomerName={printCustomerName} 
-          setPrintCustomerName={setPrintCustomerName} 
-          customText={customText} 
-          setCustomText={setCustomText} 
-          enableCustomText={enableCustomText} 
-          setEnableCustomText={setEnableCustomText} 
+        <Printing
+          printType={formData.printType}
+          setPrintType={(value) => handleChange('printType', value)}
+          printCustomerName={formData.printCustomerName}
+          setPrintCustomerName={(value) => handleChange('printCustomerName', value)}
+          customText={formData.customText}
+          setCustomText={(value) => handleChange('customText', value)}
+          // Other relevant props and functions
         />
       )}
       {activeTab === 'notes' && (
-        <Notes 
-          designNotes={designNotes} 
-          setDesignNotes={setDesignNotes} 
+        <Notes
+          notes={formData.notes}
+          setNotes={(value) => handleChange('notes', value)}
         />
       )}
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Submit Form
-      </button>
-    </form>
+    </div>
   );
 };
 
