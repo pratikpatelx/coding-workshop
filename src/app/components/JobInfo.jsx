@@ -23,12 +23,11 @@ const JobInfo = ({
           htmlFor="jobName"
           className="block text-sm font-medium text-gray-700"
         >
-          Job Name
+          Job Name:
         </label>
         <input
           id="jobName"
           type="text"
-          value={jobName}
           onChange={handleJobNameChange}
           className={`mt-1 block w-full rounded-md border ${
             error ? "border-red-500" : "border-gray-300"
@@ -41,7 +40,7 @@ const JobInfo = ({
           htmlFor="customerName"
           className="block text-sm font-medium text-gray-700"
         >
-          Customer Name
+          Customer Name:
         </label>
         <select
           id="customerName"

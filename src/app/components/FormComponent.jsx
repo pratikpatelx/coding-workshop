@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import JobInfo from './JobInfo';
-import Material from './Material';
-import Printing from './Printing';
-import Notes from './Notes';
-import ConfirmationDialog from './ConfirmationDialog';
+import React, { useState, useEffect } from "react";
+import JobInfo from "./JobInfo";
+import Material from "./Material";
+import Printing from "./Printing";
+import Notes from "./Notes";
+import ConfirmationDialog from "./ConfirmationDialog";
 
 const FormComponent = ({ activeTab }) => {
   const [formData, setFormData] = useState({
-    jobName: '',
-    customerName: '',
+    jobName: "",
+    customerName: "",
     materials: [],
-    printType: '',
+    printType: "",
     printCustomerName: false,
-    customText: '',
-    notes: ''
+    customText: "",
+    notes: "",
   });
   const [customers, setCustomers] = useState([]);
   const [materialList, setMaterialList] = useState([]);
@@ -21,30 +21,34 @@ const FormComponent = ({ activeTab }) => {
   const [error, setError] = useState(null);
   const [isConfirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [enableCustomText, setEnableCustomText] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
-    fetch('/api/data')
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to fetch form data');
+    fetch("/api/data")
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch form data");
         return response.json();
       })
-      .then(data => {
-        // Set initial form data
-        setFormData(data.formData[0]); 
+      .then((data) => {
+        setFormData(data.formData[0]);
         // Create a unique list of materials based on ID
-        const uniqueMaterials = Array.from(new Set(data.formData.map(entry => entry.materialId)))
-        .map(id => {
-          return data.formData.find(entry => entry.materialId === id);
-        })
-        .map(material => ({
-          id: material.materialId,
-          name: material.materialName
-        }));
-        setCustomers([...new Set(data.formData.map(entry => entry.customerName))]);
+        const uniqueMaterials = Array.from(
+          new Set(data.formData.map((entry) => entry.materialId))
+        )
+          .map((id) => {
+            return data.formData.find((entry) => entry.materialId === id);
+          })
+          .map((material) => ({
+            id: material.materialId,
+            name: material.materialName,
+          }));
+        setCustomers([
+          ...new Set(data.formData.map((entry) => entry.customerName)),
+        ]);
         setMaterialList(uniqueMaterials);
       })
-      .catch(error => {
+      .catch((error) => {
         setError(error.message);
       })
       .finally(() => {
@@ -52,109 +56,109 @@ const FormComponent = ({ activeTab }) => {
       });
   }, []);
 
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   const handleJobInfoChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleMaterialChange = (selectedMaterials) => {
     setFormData((prevData) => ({
       ...prevData,
-      materials: selectedMaterials
+      materials: selectedMaterials,
     }));
   };
 
   const handlePrintingChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleNotesChange = (value) => {
     setFormData((prevData) => ({
       ...prevData,
-      notes: value
+      notes: value,
     }));
   };
 
-  // Function to open the confirmation dialog
   const handleOpenConfirmation = () => {
     setConfirmationDialogOpen(true);
   };
 
-
   const handleSubmit = async () => {
     try {
-      const response = await fetch('/api/submitForm', {
-        method: 'POST',
+      const response = await fetch("/api/submitForm", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData), // Send the form data as JSON
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        // Reset the form, display a confirmation message, etc.
         setFormData({
-          jobName: '',
-          customerName: '',
+          jobName: "",
+          customerName: "",
           materials: [],
-          printType: '',
+          printType: "",
           printCustomerName: false,
-          customText: '',
-          notes: ''
+          customText: "",
+          notes: "",
         });
         setShowSuccessMessage(true);
         setTimeout(() => setShowSuccessMessage(false), 5000);
         setConfirmationDialogOpen(false);
       } else {
-        // Handle errors, e.g., display an error message to the user
-        console.error('Error submitting form:', response.statusText);
+        console.error("Error submitting form:", response.statusText);
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
     }
-    // Close the confirmation dialog
     setConfirmationDialogOpen(false);
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="mt-4">
-      {activeTab === 'jobInfo' && (
+      {activeTab === "jobInfo" && (
         <JobInfo
           jobName={formData.jobName}
           customerName={formData.customerName}
-          setJobName={(value) => handleJobInfoChange('jobName', value)}
-          setCustomerName={(value) => handleJobInfoChange('customerName', value)}
+          setJobName={(value) => handleJobInfoChange("jobName", value)}
+          setCustomerName={(value) =>
+            handleJobInfoChange("customerName", value)
+          }
           customers={customers}
         />
       )}
-      {activeTab === 'material' && (
+      {activeTab === "material" && (
         <Material
-          // Pass materials as a prop
-          materials={materialList} 
           // Pass the handler for material selection
-          onMaterialChange={handleMaterialChange} 
+          materials={materialList}
+          // Pass the handler for material selection
+          onMaterialChange={handleMaterialChange}
         />
       )}
-      {activeTab === 'printing' && (
+      {activeTab === "printing" && (
         <Printing
           printType={formData.printType}
-          setPrintType={(value) => handlePrintingChange('printType', value)}
+          setPrintType={(value) => handlePrintingChange("printType", value)}
           printCustomerName={formData.printCustomerName}
-          setPrintCustomerName={(value) => handlePrintingChange('printCustomerName', value)}
+          setPrintCustomerName={(value) =>
+            handlePrintingChange("printCustomerName", value)
+          }
           customText={formData.customText}
-          setCustomText={(value) => handlePrintingChange('customText', value)}
+          setCustomText={(value) => handlePrintingChange("customText", value)}
+          enableCustomText={enableCustomText}
+          setEnableCustomText={setEnableCustomText}
         />
       )}
-      {activeTab === 'notes' && (
+      {activeTab === "notes" && (
         <Notes
           notes={formData.notes}
           setNotes={handleNotesChange}
@@ -166,11 +170,11 @@ const FormComponent = ({ activeTab }) => {
         onCancel={() => setConfirmationDialogOpen(false)}
         onConfirm={handleSubmit}
       />
-         {showSuccessMessage && (
-            <div className="bg-green-200 text-green-800 p-2 my-2 rounded">
-              Form submitted successfully!
-            </div>
-          )}
+      {showSuccessMessage && (
+        <div className="bg-green-200 text-green-800 p-2 my-2 rounded">
+          Form submitted successfully!
+        </div>
+      )}
     </div>
   );
 };
