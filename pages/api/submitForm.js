@@ -7,7 +7,8 @@ export default async function handler(req, res) {
       const db = client.db("dbProject"); // Replace with your database name
 
       const formData = req.body; // Data sent in the request
-      await db.collection("forms").insertOne(formData);
+      delete formData._id;
+      await db.collection("formData").insertOne(formData);
 
       res.status(200).json({ message: 'Form submitted successfully' });
     } catch (error) {

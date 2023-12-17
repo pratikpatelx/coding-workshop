@@ -1,15 +1,15 @@
-"use client";
 import React, { useState, useEffect } from 'react';
 import JobInfo from './JobInfo';
 import Material from './Material';
 import Printing from './Printing';
 import Notes from './Notes';
+import ConfirmationDialog from './ConfirmationDialog';
 
 const FormComponent = ({ activeTab }) => {
   const [formData, setFormData] = useState({
     jobName: '',
     customerName: '',
-    materials: [],
+    materials: [], // Initialize materials as an empty array
     printType: '',
     printCustomerName: false,
     customText: '',
@@ -19,6 +19,8 @@ const FormComponent = ({ activeTab }) => {
   const [materialList, setMaterialList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isConfirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -28,9 +30,19 @@ const FormComponent = ({ activeTab }) => {
         return response.json();
       })
       .then(data => {
-        setFormData(data.formData[0]); // Set initial form data
+        // Set initial form data
+        setFormData(data.formData[0]); 
+        // Create a unique list of materials based on ID
+        const uniqueMaterials = Array.from(new Set(data.formData.map(entry => entry.materialId)))
+        .map(id => {
+          return data.formData.find(entry => entry.materialId === id);
+        })
+        .map(material => ({
+          id: material.materialId,
+          name: material.materialName
+        }));
         setCustomers([...new Set(data.formData.map(entry => entry.customerName))]);
-        setMaterialList(data.formData.map(entry => ({ id: entry.materialId, name: entry.materialName })));
+        setMaterialList(uniqueMaterials);
       })
       .catch(error => {
         setError(error.message);
@@ -50,40 +62,120 @@ const FormComponent = ({ activeTab }) => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
 
+  const handleJobInfoChange = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleMaterialChange = (selectedMaterials) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      materials: selectedMaterials
+    }));
+  };
+
+  const handlePrintingChange = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleNotesChange = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      notes: value
+    }));
+  };
+
+  // Function to open the confirmation dialog
+  const handleOpenConfirmation = () => {
+    setConfirmationDialogOpen(true);
+  };
+
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('/api/submitForm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData), // Send the form data as JSON
+      });
+
+      if (response.ok) {
+        // Reset the form, display a confirmation message, etc.
+        setFormData({
+          jobName: '',
+          customerName: '',
+          materials: [],
+          printType: '',
+          printCustomerName: false,
+          customText: '',
+          notes: ''
+        });
+        setShowSuccessMessage(true);
+        setTimeout(() => setShowSuccessMessage(false), 5000);
+        setConfirmationDialogOpen(false);
+      } else {
+        // Handle errors, e.g., display an error message to the user
+        console.error('Error submitting form:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+    // Close the confirmation dialog
+    setConfirmationDialogOpen(false);
+  };
+
   return (
     <div className="mt-4">
       {activeTab === 'jobInfo' && (
         <JobInfo
           jobName={formData.jobName}
           customerName={formData.customerName}
-          setJobName={(value) => handleChange('jobName', value)}
-          setCustomerName={(value) => handleChange('customerName', value)}
+          setJobName={(value) => handleJobInfoChange('jobName', value)}
+          setCustomerName={(value) => handleJobInfoChange('customerName', value)}
           customers={customers}
         />
       )}
       {activeTab === 'material' && (
         <Material
-          materials={materialList}
-          // Include functions to handle material selection
+          materials={materialList} // Pass materials as a prop
+          onMaterialChange={handleMaterialChange} // Pass the handler for material selection
         />
       )}
       {activeTab === 'printing' && (
         <Printing
           printType={formData.printType}
-          setPrintType={(value) => handleChange('printType', value)}
+          setPrintType={(value) => handlePrintingChange('printType', value)}
           printCustomerName={formData.printCustomerName}
-          setPrintCustomerName={(value) => handleChange('printCustomerName', value)}
+          setPrintCustomerName={(value) => handlePrintingChange('printCustomerName', value)}
           customText={formData.customText}
-          setCustomText={(value) => handleChange('customText', value)}
+          setCustomText={(value) => handlePrintingChange('customText', value)}
           // Other relevant props and functions
         />
       )}
       {activeTab === 'notes' && (
         <Notes
           notes={formData.notes}
-          setNotes={(value) => handleChange('notes', value)}
+          setNotes={handleNotesChange}
+          handleSubmit={handleOpenConfirmation}
         />
       )}
+      <ConfirmationDialog
+        isOpen={isConfirmationDialogOpen}
+        onCancel={() => setConfirmationDialogOpen(false)}
+        onConfirm={handleSubmit}
+      />
+         {showSuccessMessage && (
+            <div className="bg-green-200 text-green-800 p-2 my-2 rounded">
+              Form submitted successfully!
+            </div>
+          )}
     </div>
   );
 };
