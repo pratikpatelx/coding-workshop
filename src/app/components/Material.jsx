@@ -1,19 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Material = ({ selectedMaterials, setSelectedMaterials }) => {
-  const materials = [
-    { id: 'mat1', name: 'Material 1' },
-    { id: 'mat2', name: 'Material 2' },
-    { id: 'mat3', name: 'Material 3' },
-  ];
+  const [materials, setMaterials] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/materials');
+        if (!response.ok) throw new Error('Failed to fetch materials');
+        const data = await response.json();
+        setMaterials(data.materials);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMaterials();
+  }, []);
 
   const handleCheckboxChange = (materialId) => {
-    if (selectedMaterials.includes(materialId)) {
-      setSelectedMaterials(selectedMaterials.filter(id => id !== materialId));
-    } else {
-      setSelectedMaterials([...selectedMaterials, materialId]);
-    }
+    setSelectedMaterials((prevSelectedMaterials) => {
+      if (prevSelectedMaterials.includes(materialId)) {
+        return prevSelectedMaterials.filter((id) => id !== materialId);
+      } else {
+        return [...prevSelectedMaterials, materialId];
+      }
+    });
   };
+
+  if (isLoading) return <p>Loading materials...</p>;
+  if (error) return <p>Error loading materials: {error}</p>;
 
   return (
     <div className="mt-4">
@@ -22,6 +43,7 @@ const Material = ({ selectedMaterials, setSelectedMaterials }) => {
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material ID</th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Material Name</th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Select</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">

@@ -5,7 +5,7 @@ import Material from './Material';
 import Printing from './Printing';
 import Notes from './Notes';
 
-const FormComponent = () => {
+const FormComponent = ({activeTab}) => {
   // State for each part of the form
   const [jobName, setJobName] = useState('');
   const [customerName, setCustomerName] = useState('');
@@ -54,32 +54,40 @@ const FormComponent = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <JobInfo 
-        jobName={jobName} 
-        setJobName={setJobName} 
-        customerName={customerName} 
-        setCustomerName={setCustomerName} 
-      />
-      <Material 
-        selectedMaterials={selectedMaterials} 
-        setSelectedMaterials={setSelectedMaterials} 
-      />
-      <Printing 
-        printType={printType} 
-        setPrintType={setPrintType} 
-        printCustomerName={printCustomerName} 
-        setPrintCustomerName={setPrintCustomerName} 
-        customText={customText} 
-        setCustomText={setCustomText} 
-        enableCustomText={enableCustomText} 
-        setEnableCustomText={setEnableCustomText} 
-      />
-      <Notes 
-        designNotes={designNotes} 
-        setDesignNotes={setDesignNotes} 
-      />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {activeTab === 'jobInfo' && (
+        <JobInfo 
+          jobName={jobName} 
+          setJobName={setJobName} 
+          customerName={customerName} 
+          setCustomerName={setCustomerName} 
+        />
+      )}
+      {activeTab === 'material' && (
+        <Material 
+          selectedMaterials={selectedMaterials} 
+          setSelectedMaterials={setSelectedMaterials} 
+        />
+      )}
+      {activeTab === 'printing' && (
+        <Printing 
+          printType={printType} 
+          setPrintType={setPrintType} 
+          printCustomerName={printCustomerName} 
+          setPrintCustomerName={setPrintCustomerName} 
+          customText={customText} 
+          setCustomText={setCustomText} 
+          enableCustomText={enableCustomText} 
+          setEnableCustomText={setEnableCustomText} 
+        />
+      )}
+      {activeTab === 'notes' && (
+        <Notes 
+          designNotes={designNotes} 
+          setDesignNotes={setDesignNotes} 
+        />
+      )}
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
         Submit Form
       </button>
     </form>

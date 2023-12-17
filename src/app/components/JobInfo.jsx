@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const JobInfo = ({ jobName, setJobName, customerName, setCustomerName }) => {
-  const customers = [
-    { id: '1', name: 'Customer A' },
-    { id: '2', name: 'Customer B' },
-    { id: '3', name: 'Customer C' },
-  ];
+  const [customerNames, setCustomerNames] = useState([]);
+
+  useEffect(() => {
+    const fetchCustomerNames = async () => {
+      try {
+        const response = await fetch('/api/data'); // Ensure the correct API route
+        if (response.ok) {
+          const data = await response.json();
+          const formData = data.formData;
+          
+          // Extract customer names from formData
+          const extractedCustomerNames = formData.map((formDataItem) => formDataItem.customerName);
+
+          // Set customer names in the component state
+          setCustomerNames(extractedCustomerNames);
+        } else {
+          // Handle HTTP errors
+          console.error('Failed to fetch form data');
+        }
+      } catch (error) {
+        // Handle network errors
+        console.error('Error fetching form data:', error);
+      }
+    };
+
+    fetchCustomerNames();
+  }, []);  
 
   return (
     <div className="space-y-4">
@@ -25,9 +47,10 @@ const JobInfo = ({ jobName, setJobName, customerName, setCustomerName }) => {
           onChange={(e) => setCustomerName(e.target.value)}
           className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
-          {customers.map((customer) => (
-            <option key={customer.id} value={customer.name}>
-              {customer.name}
+          <option value="">Select a customer</option>
+          {customerNames.map((customerName) => (
+            <option key={customerName} value={customerName}>
+              {customerName}
             </option>
           ))}
         </select>

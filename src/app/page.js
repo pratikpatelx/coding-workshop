@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import JobInfo from '../app/components/JobInfo';
-import Material from '../app/components/Material';
-import Printing from '../app/components/Printing';
-import Notes from '../app/components/Notes';
+import FormComponent from './components/FormComponent';
+import JobInfo from './components/JobInfo';
+import Material from './components/Material';
+import Notes from './components/Notes';
+import Printing from './components/Printing';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('jobInfo');
@@ -51,41 +52,7 @@ export default function Home() {
           </button>
         </nav>
 
-        <div className="mt-4">
-          {/* Tab Content */}
-          {activeTab === 'jobInfo' && (
-            <JobInfo 
-              jobName={jobName} 
-              setJobName={setJobName} 
-              customerName={customerName} 
-              setCustomerName={setCustomerName} 
-            />
-          )}
-          {activeTab === 'material' && (
-            <Material 
-              selectedMaterials={selectedMaterials} 
-              setSelectedMaterials={setSelectedMaterials} 
-            />
-          )}
-          {activeTab === 'printing' && (
-            <Printing 
-              printType={printType} 
-              setPrintType={setPrintType} 
-              printCustomerName={printCustomerName} 
-              setPrintCustomerName={setPrintCustomerName} 
-              customText={customText} 
-              setCustomText={setCustomText} 
-              enableCustomText={enableCustomText} 
-              setEnableCustomText={setEnableCustomText} 
-            />
-          )}
-          {activeTab === 'notes' && (
-            <Notes 
-              designNotes={designNotes} 
-              setDesignNotes={setDesignNotes} 
-            />
-          )}
-        </div>
+        <FormComponent activeTab={activeTab} />
       </div>
     </div>
   );
