@@ -18,4 +18,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Additional Details
 Project is deployed via vercal at the following link:
-[Link Text](https://coding-workshop-peach.vercel.app/)
+[https://coding-workshop-peach.vercel.app/](https://coding-workshop-peach.vercel.app/)
